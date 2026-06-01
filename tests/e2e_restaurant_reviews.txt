@@ -1,0 +1,2 @@
+customerName,reviewText
+John Doe,The crispy chicken wings were incredible! Fast service. Happy!
