@@ -1,70 +1,68 @@
-# AI-Powered Multi-Tenant Sentiment Analysis SaaS Dashboard
+# AI-Powered Sentiment Analysis Dashboard
 
-An enterprise-grade, high-performance Business Intelligence (BI) dashboard built with **Next.js 15 (App Router)**, **Gemini 2.5 Flash**, and **Supabase (PostgreSQL)**. This application ingests unstructured customer feedback streams (via manual entries, bulk text uploads, PDF streams, or Excel sheets), dynamically redacts sensitive personal data before storage, extracts granular emotional data vectors, and broadcasts metrics updates instantly across authenticated user client sessions.
+A multi-tenant business intelligence dashboard for tracking customer sentiment, built with Next.js 15, Supabase, and Ollama. Companies upload customer feedback (typed in manually, or uploaded as PDF/Excel/text files), and the app extracts sentiment data and shows it on a live dashboard.
 
-## 🕹️ Live Demo & Test Credentials
+I built this to get hands-on with real-time data pipelines, multi-tenant database design, and using an LLM as part of a data processing pipeline rather than just a chatbot.
 
-The production environment is live and fully interactive. You can test the **Role-Based Access Control (RBAC)** matrices and database multi-tenancy constraints by logging in with these two pre-configured user workspace profiles:
+## Live demo
 
-### 📊 1. Executive Manager Workspace (`/dashboard/aisupporthub`)
-*   **Email**: `manager-demo@company.com`
-*   **Password**: `ManagerDemo123!`
-*   *Key Features*: Bulk document file processing (PDF, Excel, TXT), contextual AI analytics briefing cards, interactive semantic queries ("Ask Data"), and real-time Donut Chart data mapping visualization.
+The app is deployed at [ai-powered-saas-dashboard.vercel.app](https://ai-powered-saas-dashboard.vercel.app/login). There are two demo accounts you can log in with to see the two different user roles:
 
-### 🛠️ 2. Line Support Agent Station (`/dashboard/reviewsubmit`)
-*   **Email**: `khantnyinyi46@gmail.com`
-*   **Password**: `saasdashboardkhant`
-*   *Key Features*: Manual customer review submission forms, instant Optimistic UI state interceptors, and automated real-time database broadcast streams.
+**Manager view** (`/dashboard/aisupporthub`)
+- Email: `manager-demo@company.com`
+- Password: `ManagerDemo123!`
+- Can upload bulk files (PDF, Excel, TXT), see AI-generated summary cards, ask natural-language questions about the data, and view charts of sentiment over time.
 
----
+**Support agent view** (`/dashboard/reviewsubmit`)
+- Email: `khantnyinyi46@gmail.com`
+- Password: `saasdashboardkhant`
+- Can submit individual customer reviews and see them reflected on the dashboard instantly.
 
-## 🚀 Core Engineering Highlights (Employment-Ready)
+## What it does
 
-*   **🔐 Row Level Security (RLS) & Multi-Tenancy**: Engineered multi-tenant column isolation at the database layer using PostgreSQL RLS filters (`auth.uid() = user_id`). Companies can only mutate, pull, or stream records matching their explicit token workspace profile, completely preventing cross-tenant data leak vulnerabilities.
-*   **📡 Event-Driven Real-Time Streams**: Implemented instant multi-device state synchronization using **Supabase Realtime Webhooks**. New table insertions automatically trigger raw row broadcasts directly to active client states over persistent WebSocket connections, reducing metric update lag to under 200ms without HTTP polling overhead.
-*   **⚡ Intercepted Optimistic UI Updates**: Built a highly responsive user experience by managing optimistic client states natively. Manual form submissions inject structural mock review placeholders directly into chart layouts instantly, gracefully resolving background API confirmation sequences and triggering silent state rollbacks if the network fails.
-*   **🛡️ Multi-Tier Compliance Engine (GDPR/HIPAA)**: Created a strict data sanitization firewall. Ingested textual documents pass through a regular expression backend engine paired with explicit Gemini system instruction parameters to permanently mask and overwrite credit cards, email addresses, and phone numbers with `[REDACTED]` tokens prior to database commits.
-*   **📊 Database Performance Optimization**: Injected composite B-Tree database indexes on `(classified_mood, created_at)` columns inside the Supabase PostgreSQL core engine, successfully avoiding expensive full table lock scans and ensuring immediate history aggregation scaling.
-*   **🧪 Dual-Profile End-to-End Automated Testing**: Covered critical business user flows using a robust **Playwright E2E** testing framework. Separate spec runners automatically test both the Manager and Agent profile lifecycles, mocking server-action routing, file stream loads, and data assertion timelines.
-*   **🩺 Component-Level Telemetry Monitoring**: Configured asynchronous diagnostic trace logging using **Sentry Error Boundaries**. Webhook disconnects or parsing runtime exceptions are intercepted gracefully to render component recovery panels while piping complete debugging call stacks straight to developer monitoring telemetry boards.
+- **Multi-tenant data isolation.** Each company's data is walled off using Postgres Row Level Security, so a query can only ever touch rows belonging to the logged-in user's own workspace. This is enforced at the database level, not just in the app code.
+- **Real-time updates.** New reviews show up on other users' screens without a page refresh, using Supabase's realtime subscriptions over WebSockets.
+- **Optimistic UI.** When an agent submits a review, it appears on the chart immediately (before the server confirms it), then quietly rolls back if the save fails. Makes the app feel fast even though there's a network round trip happening.
+- **PII redaction.** Before any uploaded text hits the database, it's run through regex patterns plus a Gemini prompt to strip out things like emails, phone numbers, and credit card numbers.
+- **Indexed for scale.** Added a composite index on `(classified_mood, created_at)` since most of the dashboard's queries filter/sort on those two columns together — without it, aggregating sentiment history over time was doing full table scans.
+- **Tested end-to-end.** Playwright tests cover both the manager and agent flows, including file uploads and the server actions behind them.
+- **Error tracking.** Sentry is wired in on both client and server, so runtime errors (like a webhook dropping) get caught, logged, and shown as a fallback UI instead of a blank screen.
 
----
+## Stack
 
-## 🛠️ Tech Stack Architecture
+- **Frontend/Backend:** Next.js 15 (App Router, Server Actions), React 19, TypeScript, Tailwind CSS
+- **Database & Auth:** Supabase (Postgres)
+- **AI:** Google Gemini 2.5 Flash
+- **Charts:** Recharts
+- **File parsing:** PapaParse (CSV), SheetJS (Excel), pdf-parse (PDF)
+- **Validation/Monitoring:** Zod, Sentry
+- **Testing:** Playwright
 
-*   **Framework Architecture**: Next.js 15 (React 19, TypeScript, Tailwind CSS, Server Actions)
-*   **Database & Core Auth**: Supabase (PostgreSQL 15, SSR Session Cookie Traps)
-*   **Artificial Intelligence Core**: Google Gemini 2.5 Flash SDK Engine
-*   **Data Visualization Charts**: Recharts Responsive Canvas Container Wrapper
-*   **Data Parsing Libraries**: PapaParse, XLSX (SheetJS), PDF-Parse-Fork
-*   **Validation & Monitoring**: Zod Schema Models, Sentry NextJS SDK, Playwright E2E
+## Running it locally
 
----
-
-## 📋 Installation & Local Setup
-
-### 1. Clone the Project
 ```bash
-git clone https://github.com
+git clone https://github.com/khantnyinyi46/ai-powered-saas-dashboard
 cd ai-powered-saas-dashboard
 pnpm install
 ```
 
-### 2. Configure Environment Keys
-Create a local tracking environment configuration file named `.env.local`:
+Create a `.env.local` file:
+
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_public_anon_publishable_key
-GEMINI_API_KEY=your_google_gemini_api_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_public_anon_key
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
-### 3. Run Production Testing Pipelines
+Then:
+
 ```bash
 pnpm run build
 pnpm run start
-# Open a secondary terminal tab
-pnpm playwright test
 ```
 
-[Visit My Website](https://ai-powered-saas-dashboard.vercel.app/login)
+To run the test suite (in a separate terminal, once the app is running):
 
+```bash
+pnpm playwright test
+```
